@@ -27,10 +27,16 @@ def main() -> int:
     ap.add_argument("--backend", choices=["gsheets", "local"], help="sobrescreve o config.yaml")
     args = ap.parse_args()
 
+    # Loga no arquivo (para a execução agendada) e no console (execução manual).
+    log_file = ROOT / "scripts" / "collector.log"
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
+        handlers=[
+            logging.FileHandler(log_file, encoding="utf-8"),
+            logging.StreamHandler(),
+        ],
     )
 
     if args.backend:

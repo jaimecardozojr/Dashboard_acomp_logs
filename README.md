@@ -109,11 +109,23 @@ python scripts/run_collector.py            # backend gsheets (padrão do config.
 ```
 
 ### 4. Agendar o robô (Agendador de Tarefas do Windows)
-Crie uma tarefa que rode, por exemplo, a cada hora:
+Um script registra tudo automaticamente — rode uma vez (PowerShell, sem admin):
 
-- **Programa:** `C:\caminho\para\.venv\Scripts\python.exe`
-- **Argumentos:** `scripts\run_collector.py`
-- **Iniciar em:** `C:\caminho\para\dashboard_acomp_log`
+```powershell
+# A cada 30 min (padrão). Use -IntervalMinutes para mudar.
+powershell -ExecutionPolicy Bypass -File scripts\register_task.ps1
+powershell -ExecutionPolicy Bypass -File scripts\register_task.ps1 -IntervalMinutes 15
+```
+
+A tarefa roda **na sua sessão** (necessário: o drive `P:` só existe quando você está
+logado), chama `scripts\run_collector.ps1` (que usa o Python do `.venv`) e grava a saída
+em `scripts\collector.log`.
+
+```powershell
+Start-ScheduledTask  -TaskName "DashboardAcompLogs-Coletor"   # rodar agora
+Get-ScheduledTask    -TaskName "DashboardAcompLogs-Coletor" | Get-ScheduledTaskInfo  # status
+Unregister-ScheduledTask -TaskName "DashboardAcompLogs-Coletor" -Confirm:$false       # remover
+```
 
 A sincronização é **idempotente**: só grava execuções novas e atualiza as que estavam
 `incompleto` (robô ainda rodando) quando elas concluem.

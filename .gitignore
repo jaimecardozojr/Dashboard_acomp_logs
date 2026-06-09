@@ -12,6 +12,9 @@ data/*.csv
 data/*.parquet
 !data/.gitkeep
 
+# Log de execução do coletor agendado
+scripts/collector.log
+
 # Python
 __pycache__/
 *.py[cod]

@@ -63,8 +63,11 @@ def status_badge(status: str) -> str:
     return f'<span class="badge badge-{status}">{status}</span>'
 
 
-def style_fig(fig, height: int = 320):
-    """Aplica o tema escuro padrão aos gráficos Plotly."""
+def style_fig(fig, height: int = 320, hovermode: str | None = None):
+    """Aplica o tema escuro padrão aos gráficos Plotly.
+
+    hovermode: ex. 'x unified' para juntar todas as séries do dia num tooltip só.
+    """
     fig.update_layout(
         height=height,
         margin=dict(l=10, r=10, t=40, b=10),
@@ -72,7 +75,14 @@ def style_fig(fig, height: int = 320):
         plot_bgcolor="rgba(0,0,0,0)",
         font=dict(color="#E8EAF1", size=12),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0),
-        hoverlabel=dict(bgcolor="#161B27", font_size=12),
+        hovermode=hovermode or "closest",
+        hoverlabel=dict(
+            bgcolor="rgba(13,16,24,0.96)",   # combina com o fundo do tema
+            bordercolor=COLORS["accent"],
+            font=dict(color="#E8EAF1", size=13, family="sans-serif"),
+            align="left",
+            namelength=-1,
+        ),
     )
     fig.update_xaxes(gridcolor=COLORS["grid"], zeroline=False)
     fig.update_yaxes(gridcolor=COLORS["grid"], zeroline=False)

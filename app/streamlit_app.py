@@ -124,7 +124,10 @@ def render_runs(fdf) -> None:
         color_discrete_map=ui.STATUS_COLORS, barmode="stack",
     )
     fig.update_layout(xaxis_title=None, yaxis_title="execuções")
-    st.plotly_chart(ui.style_fig(fig, 330), width="stretch")
+    fig.update_xaxes(hoverformat="%d/%m/%Y")
+    for tr in fig.data:
+        tr.hovertemplate = f"{tr.name}: <b>%{{y}}</b> execuções<extra></extra>"
+    st.plotly_chart(ui.style_fig(fig, 330, hovermode="x unified"), width="stretch")
 
     c1, c2 = st.columns(2)
     with c1:
@@ -139,7 +142,10 @@ def render_runs(fdf) -> None:
             agg.sort_values("taxa"), x="taxa", y="label", orientation="h",
             text="taxa", color="automation", color_discrete_map=ui.AUTOMATION_COLORS,
         )
-        figb.update_traces(texttemplate="%{text}%", textposition="outside")
+        figb.update_traces(
+            texttemplate="%{text}%", textposition="outside",
+            hovertemplate="<b>%{y}</b><br>%{x:.1f}% de sucesso<extra></extra>",
+        )
         figb.update_layout(showlegend=False, xaxis_title="% sucesso", yaxis_title=None,
                            xaxis_range=[0, 105])
         st.plotly_chart(ui.style_fig(figb, 280), width="stretch")
@@ -148,10 +154,13 @@ def render_runs(fdf) -> None:
         ui.section("Distribuição por horário")
         by_hour = fdf.groupby("hour").size().reset_index(name="qtd")
         figh = px.area(by_hour, x="hour", y="qtd")
-        figh.update_traces(line_color=ui.COLORS["accent"], fillcolor="rgba(108,92,231,.25)")
+        figh.update_traces(
+            line_color=ui.COLORS["accent"], fillcolor="rgba(108,92,231,.25)",
+            hovertemplate="<b>%{x}h</b><br>%{y} execuções<extra></extra>",
+        )
         figh.update_layout(xaxis_title="hora do dia", yaxis_title="execuções",
                            xaxis=dict(dtick=2))
-        st.plotly_chart(ui.style_fig(figh, 280), width="stretch")
+        st.plotly_chart(ui.style_fig(figh, 280, hovermode="x unified"), width="stretch")
 
     # ----------------------------------------------------- Tabela + erros
     ui.section("Execuções recentes")
@@ -212,7 +221,11 @@ def render_tasks(ft) -> None:
     fig = px.bar(by_day, x="date", y="qtd", color="automation",
                  color_discrete_map=ui.AUTOMATION_COLORS, barmode="stack")
     fig.update_layout(xaxis_title=None, yaxis_title="tarefas")
-    st.plotly_chart(ui.style_fig(fig, 300), width="stretch")
+    fig.update_xaxes(hoverformat="%d/%m/%Y")
+    for tr in fig.data:
+        nome = LABELS.get(tr.name, tr.name)
+        tr.hovertemplate = f"{nome}: <b>%{{y}}</b> tarefas<extra></extra>"
+    st.plotly_chart(ui.style_fig(fig, 300, hovermode="x unified"), width="stretch")
 
     ui.section("Detalhe das tarefas")
     view = add_task_links(ft, gestta_url())

@@ -1,0 +1,43 @@
+# ============================================================
+# Modelo de configuração. Copie para config.yaml e ajuste.
+#   cp config.example.yaml config.yaml   (Linux/Mac)
+#   copy config.example.yaml config.yaml (Windows)
+# O config.yaml fica fora do git (caminhos internos não vão para o repositório).
+# ============================================================
+
+# Pasta raiz onde o robô lê os logs (apenas a máquina com acesso à rede)
+logs_root: "C:/caminho/para/seus/logs"
+
+# Link que abre a tarefa direto no Gestta. Placeholders:
+#   {search} = nº da tarefa (sem zeros à esquerda)
+#   {start}/{end} = início/fim do mês da tarefa (preenchidos automaticamente)
+# Troque o ID do dashboard pelo da sua conta Gestta.
+gestta_task_url: "https://app.gestta.com.br/#/sidebar/task/overview/dashboard/SEU_DASHBOARD_ID?type=SERVICE_ORDER&type=RECURRENT&type=ACCOUNTING&start_date={start}&end_date={end}&status=OPEN&status=IMPEDIMENT&date_type=COMPETENCE_DATE&no_owner=0&os_free=0&os_workflow=1&searchText={search}"
+
+# Automações monitoradas. A "key" deve bater com o nome da pasta de log.
+automations:
+  - key: admissao
+    label: "Admissão"
+    emoji: "🧑‍💼"
+  - key: ferias
+    label: "Férias"
+    emoji: "🏖️"
+  - key: rescisao
+    label: "Rescisão"
+    emoji: "📤"
+
+# Camada de armazenamento usada pelo robô e pelo dashboard.
+# Opções: "gsheets" (produção/online) ou "local" (testes sem credenciais)
+storage:
+  backend: "gsheets"
+
+  gsheets:
+    # Nome OU chave (ID) da planilha do Google Sheets
+    spreadsheet: "Acompanhamento Automacoes"
+    worksheet_runs: "execucoes"     # uma linha por execução
+    worksheet_tasks: "tarefas"      # uma linha por tarefa criada
+
+  local:
+    # Cache em CSV para desenvolvimento / fallback offline
+    path_runs: "data/execucoes.csv"
+    path_tasks: "data/tarefas.csv"

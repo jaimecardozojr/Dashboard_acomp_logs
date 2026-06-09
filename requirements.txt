@@ -1,0 +1,12 @@
+# --- Dashboard (Streamlit Cloud) ---
+streamlit>=1.36
+pandas>=2.2
+plotly>=5.22
+
+# --- Google Sheets (robô + dashboard) ---
+gspread>=6.1
+google-auth>=2.30
+
+# --- Utilitários ---
+PyYAML>=6.0
+python-dateutil>=2.9

@@ -1,0 +1,28 @@
+# Credenciais / segredos
+.env
+.streamlit/secrets.toml
+service_account.json
+credentials*.json
+
+# Config local com caminhos/IDs internos (use config.example.yaml como modelo)
+config.yaml
+
+# Cache local de dados
+data/*.csv
+data/*.parquet
+!data/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+*.egg-info/
+
+# IDE / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -26,6 +26,16 @@ NUMERIC_COLS = [
 ]
 
 
+def _to_number(series: pd.Series) -> pd.Series:
+    """Converte para número tolerando o formato pt-BR do Google Sheets
+    (ex.: '94,7' ou '1.097,8'), além do formato com ponto decimal."""
+    s = series.astype(str).str.strip()
+    both = s.str.contains(r"\.") & s.str.contains(",")
+    s = s.mask(both, s.str.replace(".", "", regex=False))  # remove ponto de milhar
+    s = s.str.replace(",", ".", regex=False)               # vírgula -> ponto decimal
+    return pd.to_numeric(s, errors="coerce").fillna(0)
+
+
 def _safe_secrets() -> dict:
     """Lê st.secrets sem quebrar quando não há secrets.toml (dev local)."""
     try:
@@ -78,7 +88,7 @@ def load_runs() -> pd.DataFrame:
 
     for col in NUMERIC_COLS:
         if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
+            df[col] = _to_number(df[col])
 
     df["start_dt"] = pd.to_datetime(df["start_time"], errors="coerce")
     df["date"] = pd.to_datetime(df["date"], errors="coerce").dt.date

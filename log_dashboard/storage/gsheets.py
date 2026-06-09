@@ -98,10 +98,13 @@ class GSheetsStorage(Storage):
     # --------------------------------------------------------------- storage
     def read_all(self) -> pd.DataFrame:
         ws = self._worksheet()
-        rows = ws.get_all_records()  # 1ª linha = cabeçalho
-        if not rows:
+        # get_all_values (não get_all_records) p/ não converter texto numérico:
+        # preserva zeros à esquerda do nº da tarefa e mantém a chave estável.
+        values = ws.get_all_values()
+        if len(values) <= 1:
             return pd.DataFrame(columns=self.columns)
-        df = pd.DataFrame(rows)
+        header, *rows = values
+        df = pd.DataFrame(rows, columns=header)
         if self.key in df.columns:
             df[self.key] = df[self.key].astype(str)
         return df

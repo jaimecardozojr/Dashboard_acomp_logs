@@ -99,7 +99,10 @@ def render_runs(fdf) -> None:
     falhas = int((fdf["status"] == "falha").sum())
     taxa = (sucesso / total * 100) if total else 0
     tarefas = int(fdf["tasks_generated"].sum())
-    dur_media = fdf["duration_seconds"].mean()
+    # Duração típica = mediana das execuções bem-sucedidas (robusta às sessões
+    # com 3 tentativas, que incluem as esperas entre tentativas e inflariam a média).
+    ok_dur = fdf.loc[fdf["status"] == "sucesso", "duration_seconds"]
+    dur_tipica = ok_dur.median() if not ok_dur.empty else fdf["duration_seconds"].median()
     last_run = fdf["start_dt"].max()
 
     ui.kpi_cards([
@@ -111,7 +114,8 @@ def render_runs(fdf) -> None:
         {"label": "Falhas", "value": falhas,
          "foot": "tentativas esgotadas", "tone": "err" if falhas else "ok"},
         {"label": "Tarefas geradas", "value": tarefas, "foot": "no período"},
-        {"label": "Duração média", "value": fmt_duration(dur_media), "foot": "por execução"},
+        {"label": "Duração típica", "value": fmt_duration(dur_tipica),
+         "foot": "mediana (execuções ok)"},
     ])
 
     # ------------------------------------------------------------ Gráficos
@@ -249,7 +253,15 @@ def render_tasks(ft) -> None:
         },
     )
 
-    csv = table.to_csv(index=False).encode("utf-8")
+    # Export limpo: cabeçalhos claros, link completo e formato amigável ao
+    # Excel em português (separador ';' + BOM utf-8-sig para acentos corretos).
+    export = view[[
+        "Dia", "Hora", "Automação", "person", "task_number", "title", "task_link",
+    ]].rename(columns={
+        "person": "Pessoa", "task_number": "Número da tarefa",
+        "title": "Título", "task_link": "Link da tarefa",
+    })
+    csv = export.to_csv(index=False, sep=";").encode("utf-8-sig")
     st.download_button(
         "⬇️ Baixar tarefas (CSV)", data=csv,
         file_name="tarefas_criadas.csv", mime="text/csv",

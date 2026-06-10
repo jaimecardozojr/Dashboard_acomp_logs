@@ -35,6 +35,12 @@ RE_PENDENTES = re.compile(r"Há\s+(\d+)\s+tarefa")
 CRIANDO_PREFIX = "Criando tarefa para "
 RE_TITULO_SEP = re.compile(r"\|\s*T[íi]tulo:\s*")
 
+# Exceção dentro do traceback: ex. 'selenium...StaleElementReferenceException: Message: ...'
+RE_EXCECAO = re.compile(
+    r"([A-Za-z_][\w.]*(?:Exception|Error|TimeoutError))\b[:\s]*(?:Message:\s*)?([^|]{0,160})"
+)
+RE_TIPO_FALHOU = re.compile(r"Erro ao processar tipo:\s*([^\s|]+)")
+
 
 class ParsedLine:
     __slots__ = ("ts", "level", "msg")
@@ -69,7 +75,7 @@ def _iter_lines(path: Path) -> Iterator[ParsedLine]:
                 continue
             parsed = _parse_line(raw)
             if parsed is None:
-                if last is not None and len(last.msg) < 500:
+                if last is not None and len(last.msg) < 1500:
                     last.msg += " | " + raw.strip()
                 continue
             if last is not None:
@@ -111,6 +117,8 @@ def _build_record(
     warnings = errors = criticals = 0
     status = "incompleto"
     last_error = ""
+    falhou_em = ""        # tipo que falhou (calculo, estagiario...)
+    excecao = ""          # exceção técnica (classe: mensagem)
 
     for ln in session:
         lvl, msg = ln.level, ln.msg
@@ -123,6 +131,16 @@ def _build_record(
         elif lvl == "CRITICAL":
             criticals += 1
             last_error = msg
+
+        if lvl in ("ERROR", "CRITICAL"):
+            mt = RE_TIPO_FALHOU.search(msg)
+            if mt:
+                falhou_em = mt.group(1).strip()
+            me = RE_EXCECAO.search(msg)
+            if me:
+                classe = me.group(1).split(".")[-1]
+                detalhe = me.group(2).strip().strip("|").strip()
+                excecao = f"{classe}: {detalhe}" if detalhe else classe
 
         m = RE_TENTATIVA.search(msg)
         if m:
@@ -143,6 +161,13 @@ def _build_record(
         mp = RE_PENDENTES.search(msg)
         if mp:
             pending += int(mp.group(1))
+
+    # Monta uma causa legível: "<passo> · <Exceção: mensagem>".
+    if excecao:
+        last_error = f"{falhou_em} · {excecao}" if falhou_em else excecao
+    elif falhou_em:
+        last_error = f"Erro ao processar: {falhou_em}"
+    # senão mantém a última mensagem de ERROR/CRITICAL como fallback.
 
     run_id = f"{automation}_{start.strftime('%Y%m%dT%H%M%S')}_{idx}"
 

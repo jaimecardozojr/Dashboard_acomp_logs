@@ -205,12 +205,16 @@ def render_runs(fdf) -> None:
         ui.section("⚠️ Últimas falhas")
         for _, row in fails.head(10).iterrows():
             label = LABELS.get(row["automation"], row["automation"])
+            causa = (row["last_error"] or "causa não identificada").strip()
+            resumo = causa if len(causa) <= 70 else causa[:70] + "…"
             with st.expander(
-                f"{label} — {row['start_dt']:%d/%m/%Y %H:%M} · "
-                f"{int(row['attempts'])} tentativas · {int(row['errors'])} erros"
+                f"{label} · {row['start_dt']:%d/%m %H:%M} — {resumo}"
             ):
-                st.code(row["last_error"] or "(sem mensagem de erro capturada)", language="text")
-                st.caption(f"Arquivo: {row['log_file']}")
+                st.markdown(f"**Causa:** {causa}")
+                st.caption(
+                    f"{int(row['attempts'])} tentativas · {int(row['errors'])} erros · "
+                    f"{int(row['warnings'])} avisos · arquivo: {row['log_file']}"
+                )
 
 
 def render_tasks(ft) -> None:

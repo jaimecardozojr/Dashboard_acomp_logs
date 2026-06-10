@@ -18,7 +18,7 @@ COLORS = {
     "grid": "#232A3B",
 }
 STATUS_COLORS = {"sucesso": COLORS["ok"], "falha": COLORS["err"], "incompleto": COLORS["warn"]}
-AUTOMATION_COLORS = {"admissao": "#6C5CE7", "ferias": "#00D2A8", "rescisao": "#F59E0B"}
+AUTOMATION_COLORS = {"admissao": "#2EE91D", "ferias": "#0097D2", "rescisao": "#F59E0B"}
 
 
 def inject_css() -> None:

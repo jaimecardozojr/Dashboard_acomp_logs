@@ -14,6 +14,10 @@ logs_root: "C:/caminho/para/seus/logs"
 # Troque o ID do dashboard pelo da sua conta Gestta.
 gestta_task_url: "https://app.gestta.com.br/#/sidebar/task/overview/dashboard/SEU_DASHBOARD_ID?type=SERVICE_ORDER&type=RECURRENT&type=ACCOUNTING&start_date={start}&end_date={end}&status=OPEN&status=IMPEDIMENT&date_type=COMPETENCE_DATE&no_owner=0&os_free=0&os_workflow=1&searchText={search}"
 
+# Minutos de trabalho manual poupados por cada tarefa que o robô gera
+# (usado no KPI "Tempo economizado" do dashboard).
+minutes_saved_per_task: 2
+
 # Automações monitoradas. A "key" deve bater com o nome da pasta de log.
 automations:
   - key: admissao

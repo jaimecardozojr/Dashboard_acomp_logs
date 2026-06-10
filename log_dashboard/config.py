@@ -29,6 +29,7 @@ class Settings:
     logs_root: Path
     automations: list[Automation]
     gestta_task_url: str
+    minutes_saved_per_task: float
     backend: str
     gsheets_spreadsheet: str
     gsheets_worksheet_runs: str
@@ -72,6 +73,7 @@ def load_settings(config_path: str | Path | None = None) -> Settings:
         logs_root=Path(data.get("logs_root", "")),
         automations=automations,
         gestta_task_url=data.get("gestta_task_url", ""),
+        minutes_saved_per_task=float(data.get("minutes_saved_per_task", 2)),
         backend=backend,
         gsheets_spreadsheet=gs.get("spreadsheet", ""),
         gsheets_worksheet_runs=gs.get("worksheet_runs", "execucoes"),

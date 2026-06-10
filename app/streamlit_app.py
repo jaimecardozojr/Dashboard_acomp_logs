@@ -35,6 +35,18 @@ def fmt_duration(seconds: float) -> str:
     return f"{m}m {s:02d}s" if m else f"{s}s"
 
 
+def fmt_minutes(total_min: float) -> str:
+    """Formata minutos como '3h 24min' ou, se grande, inclui os dias."""
+    total = int(round(total_min or 0))
+    h, m = divmod(total, 60)
+    d, h = divmod(h, 24)
+    if d:
+        return f"{d}d {h}h {m:02d}min"
+    if h:
+        return f"{h}h {m:02d}min"
+    return f"{m} min"
+
+
 def main() -> None:
     ui.inject_css()
     ui.header(
@@ -99,10 +111,9 @@ def render_runs(fdf) -> None:
     falhas = int((fdf["status"] == "falha").sum())
     taxa = (sucesso / total * 100) if total else 0
     tarefas = int(fdf["tasks_generated"].sum())
-    # Duração típica = mediana das execuções bem-sucedidas (robusta às sessões
-    # com 3 tentativas, que incluem as esperas entre tentativas e inflariam a média).
-    ok_dur = fdf.loc[fdf["status"] == "sucesso", "duration_seconds"]
-    dur_tipica = ok_dur.median() if not ok_dur.empty else fdf["duration_seconds"].median()
+    # Tempo economizado = tarefas geradas pelo robô × minutos que um assistente
+    # gastaria criando cada tarefa manualmente.
+    economia_min = tarefas * SETTINGS.minutes_saved_per_task
     last_run = fdf["start_dt"].max()
 
     ui.kpi_cards([
@@ -114,8 +125,8 @@ def render_runs(fdf) -> None:
         {"label": "Falhas", "value": falhas,
          "foot": "tentativas esgotadas", "tone": "err" if falhas else "ok"},
         {"label": "Tarefas geradas", "value": tarefas, "foot": "no período"},
-        {"label": "Duração típica", "value": fmt_duration(dur_tipica),
-         "foot": "mediana (execuções ok)"},
+        {"label": "Tempo economizado", "value": fmt_minutes(economia_min),
+         "foot": f"{tarefas} tarefas × {SETTINGS.minutes_saved_per_task:g} min", "tone": "ok"},
     ])
 
     # ------------------------------------------------------------ Gráficos

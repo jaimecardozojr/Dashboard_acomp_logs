@@ -112,8 +112,10 @@ def render_runs(fdf) -> None:
     taxa = (sucesso / total * 100) if total else 0
     tarefas = int(fdf["tasks_generated"].sum())
     # Tempo economizado = tarefas geradas pelo robô × minutos que um assistente
-    # gastaria criando cada tarefa manualmente.
-    economia_min = tarefas * SETTINGS.minutes_saved_per_task
+    # gastaria criando cada tarefa manualmente. getattr() protege contra estado
+    # antigo do módulo de config em cache (rerun parcial no Streamlit Cloud).
+    min_por_tarefa = getattr(SETTINGS, "minutes_saved_per_task", 2)
+    economia_min = tarefas * min_por_tarefa
     last_run = fdf["start_dt"].max()
 
     ui.kpi_cards([
@@ -126,7 +128,7 @@ def render_runs(fdf) -> None:
          "foot": "tentativas esgotadas", "tone": "err" if falhas else "ok"},
         {"label": "Tarefas geradas", "value": tarefas, "foot": "no período"},
         {"label": "Tempo economizado", "value": fmt_minutes(economia_min),
-         "foot": f"{tarefas} tarefas × {SETTINGS.minutes_saved_per_task:g} min", "tone": "ok"},
+         "foot": f"{tarefas} tarefas × {min_por_tarefa:g} min", "tone": "ok"},
     ])
 
     # ------------------------------------------------------------ Gráficos

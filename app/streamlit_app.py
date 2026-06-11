@@ -74,8 +74,10 @@ def main() -> None:
         sel_status = st.multiselect("Status", statuses, default=statuses)
 
         min_d, max_d = df["date"].min(), df["date"].max()
+        # Padrão: mês vigente (1º dia do mês da data mais recente até ela).
+        mes_inicio = max(min_d, max_d.replace(day=1))
         date_range = st.date_input(
-            "Período", value=(min_d, max_d), min_value=min_d, max_value=max_d,
+            "Período", value=(mes_inicio, max_d), min_value=min_d, max_value=max_d,
         )
         if isinstance(date_range, (list, tuple)) and len(date_range) == 1:
             date_range = (date_range[0], date_range[0])

@@ -145,7 +145,7 @@ def render_runs(fdf) -> None:
     fig.update_layout(xaxis_title=None, yaxis_title="execuções", bargap=0.45)
     fig.update_xaxes(hoverformat="%d/%m/%Y")
     fig.update_traces(
-        marker_cornerradius="30%",
+        marker_cornerradius="20%",
         marker_line=dict(width=1, color="rgba(0,0,0,0.35)"),
     )
     for tr in fig.data:
@@ -168,7 +168,7 @@ def render_runs(fdf) -> None:
                 color=agg["taxa"],
                 colorscale=[[0, "#5b4cca"], [0.6, "#22d3ee"], [1, "#34d399"]],
                 cmin=0, cmax=100,
-                cornerradius="45%",
+                cornerradius="20%",
                 line=dict(width=0),
             ),
             texttemplate="%{text:.0f}%", textposition="outside",
@@ -260,7 +260,7 @@ def render_tasks(ft) -> None:
     fig.update_layout(xaxis_title=None, yaxis_title="tarefas", bargap=0.45)
     fig.update_xaxes(hoverformat="%d/%m/%Y")
     fig.update_traces(
-        marker_cornerradius="30%",
+        marker_cornerradius="20%",
         marker_line=dict(width=1, color="rgba(0,0,0,0.35)"),
     )
     for tr in fig.data:

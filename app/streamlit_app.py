@@ -142,8 +142,12 @@ def render_runs(fdf) -> None:
         by_day, x="date", y="qtd", color="status",
         color_discrete_map=ui.STATUS_COLORS, barmode="stack",
     )
-    fig.update_layout(xaxis_title=None, yaxis_title="execuções")
+    fig.update_layout(xaxis_title=None, yaxis_title="execuções", bargap=0.45)
     fig.update_xaxes(hoverformat="%d/%m/%Y")
+    fig.update_traces(
+        marker_cornerradius="30%",
+        marker_line=dict(width=1, color="rgba(0,0,0,0.35)"),
+    )
     for tr in fig.data:
         tr.hovertemplate = f"{tr.name}: <b>%{{y}}</b> execuções<extra></extra>"
     st.plotly_chart(ui.style_fig(fig, 330, hovermode="x unified"), width="stretch")
@@ -157,16 +161,22 @@ def render_runs(fdf) -> None:
         ).reset_index()
         agg["taxa"] = (agg["ok"] / agg["total"] * 100).round(1)
         agg["label"] = agg["automation"].map(lambda k: LABELS.get(k, k))
-        figb = px.bar(
-            agg.sort_values("taxa"), x="taxa", y="label", orientation="h",
-            text="taxa", color="automation", color_discrete_map=ui.AUTOMATION_COLORS,
-        )
+        agg = agg.sort_values("taxa")
+        figb = px.bar(agg, x="taxa", y="label", orientation="h", text="taxa")
         figb.update_traces(
-            texttemplate="%{text}%", textposition="outside",
+            marker=dict(
+                color=agg["taxa"],
+                colorscale=[[0, "#5b4cca"], [0.6, "#22d3ee"], [1, "#34d399"]],
+                cmin=0, cmax=100,
+                cornerradius="45%",
+                line=dict(width=0),
+            ),
+            texttemplate="%{text:.0f}%", textposition="outside",
+            cliponaxis=False,
             hovertemplate="<b>%{y}</b><br>%{x:.1f}% de sucesso<extra></extra>",
         )
         figb.update_layout(showlegend=False, xaxis_title="% sucesso", yaxis_title=None,
-                           xaxis_range=[0, 105])
+                           xaxis_range=[0, 108], bargap=0.55)
         st.plotly_chart(ui.style_fig(figb, 280), width="stretch")
 
     with c2:
@@ -247,8 +257,12 @@ def render_tasks(ft) -> None:
     by_day["label"] = by_day["automation"].map(lambda k: LABELS.get(k, k))
     fig = px.bar(by_day, x="date", y="qtd", color="automation",
                  color_discrete_map=ui.AUTOMATION_COLORS, barmode="stack")
-    fig.update_layout(xaxis_title=None, yaxis_title="tarefas")
+    fig.update_layout(xaxis_title=None, yaxis_title="tarefas", bargap=0.45)
     fig.update_xaxes(hoverformat="%d/%m/%Y")
+    fig.update_traces(
+        marker_cornerradius="30%",
+        marker_line=dict(width=1, color="rgba(0,0,0,0.35)"),
+    )
     for tr in fig.data:
         nome = LABELS.get(tr.name, tr.name)
         tr.hovertemplate = f"{nome}: <b>%{{y}}</b> tarefas<extra></extra>"

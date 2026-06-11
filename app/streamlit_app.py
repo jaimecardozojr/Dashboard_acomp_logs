@@ -174,7 +174,11 @@ def render_runs(fdf) -> None:
         by_hour = fdf.groupby("hour").size().reset_index(name="qtd")
         figh = px.area(by_hour, x="hour", y="qtd")
         figh.update_traces(
-            line_color=ui.COLORS["accent"], fillcolor="rgba(108,92,231,.25)",
+            line=dict(color=ui.COLORS["accent_2"], width=2.5, shape="spline"),
+            fillcolor="rgba(91,76,202,.22)",
+            mode="lines+markers",
+            marker=dict(size=6, color=ui.COLORS["accent_2"],
+                        line=dict(width=1, color="rgba(255,255,255,.6)")),
             hovertemplate="<b>%{x}h</b><br>%{y} execuções<extra></extra>",
         )
         figh.update_layout(xaxis_title="hora do dia", yaxis_title="execuções",

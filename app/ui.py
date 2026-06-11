@@ -9,13 +9,13 @@ ASSETS = Path(__file__).resolve().parent / "assets"
 
 # Paleta consistente entre CSS e gráficos Plotly
 COLORS = {
-    "accent": "#6C5CE7",
-    "accent_2": "#00D2A8",
+    "accent": "#5b4cca",
+    "accent_2": "#22d3ee",
     "ok": "#22C55E",
     "warn": "#F59E0B",
     "err": "#EF4444",
     "muted": "#8B93A7",
-    "grid": "#232A3B",
+    "grid": "rgba(255,255,255,0.06)",
 }
 STATUS_COLORS = {"sucesso": COLORS["ok"], "falha": COLORS["err"], "incompleto": COLORS["warn"]}
 AUTOMATION_COLORS = {"admissao": "#2EE91D", "ferias": "#0097D2", "rescisao": "#F59E0B"}
@@ -73,17 +73,20 @@ def style_fig(fig, height: int = 320, hovermode: str | None = None):
         margin=dict(l=10, r=10, t=40, b=10),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(color="#E8EAF1", size=12),
+        font=dict(color="#E8EAF1", size=12, family="Space Grotesk, Inter, sans-serif"),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0),
         hovermode=hovermode or "closest",
+        barcornerradius=7,                 # barras com cantos arredondados
+        bargap=0.28,
         hoverlabel=dict(
             bgcolor="rgba(13,16,24,0.96)",   # combina com o fundo do tema
             bordercolor=COLORS["accent"],
-            font=dict(color="#E8EAF1", size=13, family="sans-serif"),
+            font=dict(color="#E8EAF1", size=13, family="Space Grotesk, sans-serif"),
             align="left",
             namelength=-1,
         ),
+        transition=dict(duration=450, easing="cubic-in-out"),
     )
-    fig.update_xaxes(gridcolor=COLORS["grid"], zeroline=False)
-    fig.update_yaxes(gridcolor=COLORS["grid"], zeroline=False)
+    fig.update_xaxes(gridcolor=COLORS["grid"], zeroline=False, showline=False, ticks="")
+    fig.update_yaxes(gridcolor=COLORS["grid"], zeroline=False, showline=False, ticks="")
     return fig
